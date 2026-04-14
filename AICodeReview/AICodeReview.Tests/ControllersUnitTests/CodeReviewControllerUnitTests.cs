@@ -1,7 +1,6 @@
 ﻿using AICodeReview.Controllers;
 using AICodeReview.Interfaces;
 using AICodeReview.Models;
-using AICodeReview.Services.CodeAnalyser;
 using Moq;
 
 namespace AICodeReview.Tests.ControllersUnitTests

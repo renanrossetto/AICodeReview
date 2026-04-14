@@ -48,9 +48,7 @@ namespace AICodeReview.Services.AI
 
             using var doc = JsonDocument.Parse(json);
 
-            return doc.RootElement
-                      .GetProperty("response")
-                      .GetString() ?? "";
+            return doc.RootElement.GetProperty("response").GetString() ?? "";
         }
     }
 }
