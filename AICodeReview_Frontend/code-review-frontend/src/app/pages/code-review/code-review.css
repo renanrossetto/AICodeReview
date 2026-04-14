@@ -1,0 +1,83 @@
+body {
+  background: #f4f6f8;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.title {
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #2c3e50;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.code-input {
+  width: 100%;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  resize: vertical;
+  margin-bottom: 20px;
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: #3f8cff;
+  box-shadow: 0 0 0 2px rgba(63,140,255,0.2);
+}
+
+.review-btn {
+  background: #3f8cff;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.review-btn:hover {
+  background: #2f6fd6;
+}
+
+.loading {
+  margin-top: 15px;
+  font-style: italic;
+  color: #555;
+}
+
+.result-title {
+  margin-bottom: 15px;
+  color: #2c3e50;
+}
+
+.code-output {
+  background: #1e1e1e;
+  color: #00ff9c;
+  padding: 18px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 14px;
+  overflow-x: auto;
+}

@@ -1,0 +1,30 @@
+<div class="container">
+  <div class="card">
+
+    <h1 class="title">Código a ser revisado</h1>
+
+    <textarea
+      [(ngModel)]="codeInput"
+      rows="12"
+      class="code-input">
+    </textarea>
+
+    <button class="review-btn" (click)="sendCode()">
+      Revisar Código
+    </button>
+
+    <div *ngIf="loading" class="loading">
+      Analisando código...
+    </div>
+
+  </div>
+
+  <div class="card result" *ngIf="reviewedCode">
+
+    <h2 class="result-title">Resultado da Revisão</h2>
+
+    <pre class="code-output"> {{ reviewedCode }} </pre>
+
+  </div>
+
+</div>

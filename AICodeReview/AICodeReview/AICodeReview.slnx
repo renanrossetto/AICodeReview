@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="AICodeReview.csproj" />
+  </Folder>
+  <Project Path="../AICodeReview.Tests/AICodeReview.Tests.csproj" Id="3293664d-e636-4aa8-a0e1-3a1daf506d68" />
+</Solution>
