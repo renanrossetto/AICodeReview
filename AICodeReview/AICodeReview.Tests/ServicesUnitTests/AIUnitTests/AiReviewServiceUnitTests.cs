@@ -7,11 +7,16 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
 {
     public class AiReviewServiceUnitTests
     {        
+        private const string GitComparePrompt = "AiReview:DiffReviewTemplate";
+        private const string GitCompareCheck = "WARNINGS:{WARNINGS};DIFF:{DIFF}";
+        private const string CodePrompt = "AiReview:CodeReviewTemplate";
+        private const string CodeCheck = "WARNINGS:{WARNINGS};CODE:{CODE}";
+        
         [Fact]
         public async Task ManualReview_ReturnsEmptyString_WhenAiResponseIsNull()
         {
             // Arrange
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:CodeReviewTemplate", "WARNINGS:{WARNINGS};CODE:{CODE}");
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             mockAiResponse
                 .Setup(a => a.AIResponse(It.IsAny<string>()))
@@ -30,7 +35,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         public async Task ManualReview_ReturnsEmptyString_WhenAiResponseIsWhitespace()
         {
             // Arrange
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:CodeReviewTemplate", "WARNINGS:{WARNINGS};CODE:{CODE}");
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             mockAiResponse
                 .Setup(a => a.AIResponse(It.IsAny<string>()))
@@ -49,7 +54,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         public async Task ManualReview_ReturnsParsedResponse_WhenAiReturnsValidJson()
         {
             // Arrange
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:CodeReviewTemplate", "WARNINGS:{WARNINGS};CODE:{CODE}");
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             var expected = "This is the review";
             var json = $"{{\"response\":\"{expected}\"}}";
@@ -72,7 +77,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         {
             // Arrange
             var template = "Warnings:[{WARNINGS}]|Code:[{CODE}]";
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:CodeReviewTemplate", template);
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, template);
 
             string? capturedPrompt = null;
             mockAiResponse
@@ -100,7 +105,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         public async Task GitCompareReview_ReturnsEmptyString_WhenAiResponseIsNull()
         {
             // Arrange
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:DiffReviewTemplate", "WARNINGS:{WARNINGS};DIFF:{DIFF}");
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             mockAiResponse
                 .Setup(a => a.AIResponse(It.IsAny<string>()))
@@ -119,7 +124,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         public async Task GitCompareReview_ReturnsEmptyString_WhenAiResponseIsWhitespace()
         {
             // Arrange
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:DiffReviewTemplate", "WARNINGS:{WARNINGS};DIFF:{DIFF}");
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             mockAiResponse
                 .Setup(a => a.AIResponse(It.IsAny<string>()))
@@ -138,7 +143,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         public async Task GitCompareReview_ReturnsParsedResponse_WhenAiReturnsValidJson()
         {
             // Arrange
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:DiffReviewTemplate", "WARNINGS:{WARNINGS};DIFF:{DIFF}");
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             var expected = "This is the diff review";
             var json = $"{{\"response\":\"{expected}\"}}";
@@ -161,7 +166,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         {
             // Arrange
             var template = "Warnings:[{WARNINGS}]|Diff:[{DIFF}]";
-            var (mockAiResponse, config) = AppSettingsSetup("AiReview:DiffReviewTemplate", template);
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, template);
 
             string? capturedPrompt = null;
             mockAiResponse
@@ -178,7 +183,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var result = await service.GitCompareReview(diff, warnings);
 
             // Assert
-            Assert.NotNull(capturedPrompt);
+            Assert.NotNull(capturedPrompt);            
             var expectedWarnings = string.Join(Environment.NewLine, warnings);
             Assert.Contains(expectedWarnings, capturedPrompt!);
             Assert.Contains(diff, capturedPrompt!);
@@ -189,7 +194,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         {
             var mockAiResponse = new Mock<IAiResponseService>();
 
-            var inMemory = new Dictionary<string, string>
+            var inMemory = new Dictionary<string, string?>
             {
                 { key, template }
             };
