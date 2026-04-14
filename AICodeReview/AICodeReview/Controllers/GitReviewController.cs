@@ -11,10 +11,7 @@ namespace AICodeReview.Controllers
         private readonly IGitService _git;
         private readonly IAiReviewService _ai;
 
-        public GitReviewController(
-            IGitService git,
-            ICodeAnalyzerService stat,
-            IAiReviewService ai)
+        public GitReviewController(IGitService git, ICodeAnalyzerService stat, IAiReviewService ai)
         {
             _git = git;
             _ai = ai;
@@ -23,10 +20,7 @@ namespace AICodeReview.Controllers
         [HttpPost]
         public async Task<IActionResult> ReviewBranch([FromBody] BranchReviewRequest request)
         {
-            var diff = _git.GetModifiedCsFiles(
-                request.RepositoryPath,
-                request.BaseBranch,
-                request.CompareBranch);
+            var diff = _git.GetModifiedCsFiles(request.RepositoryPath, request.BaseBranch, request.CompareBranch);
 
             if (string.IsNullOrWhiteSpace(diff))
             {
@@ -41,7 +35,7 @@ namespace AICodeReview.Controllers
                 "Análise baseada em diff (Pull Request)"
             };
 
-            var aiReview = await _ai.ReviewDiffAsync(diff, warnings);
+            var aiReview = await _ai.GitCompareReview(diff, warnings);
 
             return Ok(new
             {

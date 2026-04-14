@@ -6,7 +6,7 @@ namespace AICodeReview.Services.CodeAnalyser
 {
     public class CodeAnalyzerService : ICodeAnalyzerService
     {
-        public List<string> Analyze(string code)
+        public List<string> Analyze(string? code)
         {
             var warnings = new List<string>();
             if (string.IsNullOrWhiteSpace(code))

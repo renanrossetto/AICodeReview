@@ -8,7 +8,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
         [InlineData(null)]
         [InlineData("")]
         [InlineData("   ")]
-        public void Analyze_ReturnsEmpty_WhenCodeIsNullOrWhitespace(string code)
+        public void Analyze_ReturnsEmpty_WhenCodeIsNullOrWhitespace(string? code)
         {
             var svc = new CodeAnalyzerService();
 

@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace AICodeReview.Services.AIConnection
 {
-    public class AIResponseService : IAIResponseService
+    public class AIResponseService : IAiResponseService
     {
         private readonly HttpClient _http;
 
@@ -13,7 +13,7 @@ namespace AICodeReview.Services.AIConnection
             _http = http;
         }
 
-        public async Task<string> AIResponse(string prompt)
+        public async Task<string?> AIResponse(string prompt)
         {
             try
             {
