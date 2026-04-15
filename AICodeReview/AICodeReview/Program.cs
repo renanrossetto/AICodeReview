@@ -28,7 +28,7 @@ builder.Services.AddScoped<IGitService, GitService>();
 
 var aiBaseUrl = builder.Configuration["AiReview:BaseUrl"] ?? "http://localhost:11434";
 
-builder.Services.AddHttpClient<IAiResponseService, AIResponseService>(client =>
+builder.Services.AddHttpClient<IAiResponseService, AiResponseService>(client =>
 {
     client.BaseAddress = new Uri(aiBaseUrl);
 });

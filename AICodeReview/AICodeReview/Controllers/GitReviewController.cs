@@ -1,4 +1,5 @@
-﻿using AICodeReview.Interfaces;
+﻿using AICodeReview.Common;
+using AICodeReview.Interfaces;
 using AICodeReview.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,13 +27,13 @@ namespace AICodeReview.Controllers
             {
                 return Ok(new
                 {
-                    Message = "Nenhuma alteração em arquivos .cs encontrada."
+                    Message = Messages.NoCsFilesChanged
                 });
             }
 
             var warnings = new List<string>
             {
-                "Análise baseada em diff (Pull Request)"
+                Messages.PullRequestWarning
             };
 
             var aiReview = await _ai.GitCompareReview(diff, warnings);

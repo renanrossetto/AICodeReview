@@ -42,7 +42,7 @@ namespace AICodeReview.Services.AI
 
         private async Task<string> ExecutePrompt(string prompt)
         {
-            var json = await _aiResponseService.AIResponse(prompt);
+            var json = await _aiResponseService.AiResponse(prompt);
 
             if (string.IsNullOrWhiteSpace(json)) return "";
 

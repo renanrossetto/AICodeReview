@@ -19,7 +19,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync((string?)null);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
@@ -38,7 +38,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync("   ");
 
             var service = new AiReviewService(mockAiResponse.Object, config);
@@ -60,7 +60,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var json = $"{{\"response\":\"{expected}\"}}";
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync(json);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
@@ -81,7 +81,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
 
             string? capturedPrompt = null;
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .Callback<string>(p => capturedPrompt = p)
                 .ReturnsAsync("{\"response\":\"ok\"}");
 
@@ -108,7 +108,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync((string?)null);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
@@ -127,7 +127,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync("   ");
 
             var service = new AiReviewService(mockAiResponse.Object, config);
@@ -149,7 +149,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var json = $"{{\"response\":\"{expected}\"}}";
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync(json);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
@@ -170,7 +170,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
 
             string? capturedPrompt = null;
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .Callback<string>(p => capturedPrompt = p)
                 .ReturnsAsync("{\"response\":\"ok\"}");
 

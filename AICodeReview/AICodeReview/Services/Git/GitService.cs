@@ -1,4 +1,5 @@
-﻿using AICodeReview.Interfaces;
+﻿using AICodeReview.Common;
+using AICodeReview.Interfaces;
 using LibGit2Sharp;
 
 namespace AICodeReview.Services.Git
@@ -13,11 +14,9 @@ namespace AICodeReview.Services.Git
             var compareCommit = repo.Branches[compareBranch]?.Tip;
 
             if (baseCommit == null || compareCommit == null)
-                throw new Exception("Branch não encontrada.");
+                throw new Exception(Messages.BranchNotFound);
 
-            var patch = repo.Diff.Compare<Patch>(
-                baseCommit.Tree,
-                compareCommit.Tree);
+            var patch = repo.Diff.Compare<Patch>(baseCommit.Tree, compareCommit.Tree);
 
             var csDiffs = patch
                 .Where(p => p.Path.EndsWith(".cs"))
