@@ -1,19 +1,20 @@
-﻿using AICodeReview.Interfaces;
+﻿using AICodeReview.Common;
+using AICodeReview.Interfaces;
 using System.Text;
 using System.Text.Json;
 
 namespace AICodeReview.Services.AIConnection
 {
-    public class AIResponseService : IAIResponseService
+    public class AiResponseService : IAiResponseService
     {
         private readonly HttpClient _http;
 
-        public AIResponseService(HttpClient http)
+        public AiResponseService(HttpClient http)
         {
             _http = http;
         }
 
-        public async Task<string> AIResponse(string prompt)
+        public async Task<string?> AiResponse(string prompt)
         {
             try
             {
@@ -35,14 +36,14 @@ namespace AICodeReview.Services.AIConnection
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return ($"AI response error. {(int)response.StatusCode} - {respContent}");
+                    return string.Format(Messages.AiResponseError, (int)response.StatusCode, respContent);                    
                 }
 
                 return respContent;
             }
             catch (Exception ex)
             {
-                return ($"AIResponse exception: {ex.Message}");
+                return string.Format(Messages.AiException, ex.Message);                
             }
         }
     }

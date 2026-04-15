@@ -24,7 +24,7 @@ namespace AICodeReview.Controllers
             {
                 var warnings = _static.Analyze(request.Code);
 
-                var aiReview = await _ai.ReviewAsync(request.Code, warnings);
+                var aiReview = await _ai.ManualReview(request.Code, warnings);
 
                 return new ReviewResponse
                 {

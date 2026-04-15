@@ -1,7 +1,7 @@
 ﻿namespace AICodeReview.Interfaces
 {
-    public interface IAIResponseService
+    public interface IAiResponseService
     {
-        Task<string> AIResponse(string prompt);
+        Task<string?> AiResponse(string prompt);
     }
 }

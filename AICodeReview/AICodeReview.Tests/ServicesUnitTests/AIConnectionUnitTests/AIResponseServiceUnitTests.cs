@@ -1,4 +1,5 @@
-﻿using AICodeReview.Services.AIConnection;
+﻿using AICodeReview.Common;
+using AICodeReview.Services.AIConnection;
 using System.Net;
 
 namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
@@ -19,7 +20,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
         }
 
         [Fact]
-        public async Task AIResponse_ReturnsContent_OnSuccess()
+        public async Task AiResponse_ReturnsContent_OnSuccess()
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -29,15 +30,15 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
             var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
 
-            var service = new AIResponseService(client);
+            var service = new AiResponseService(client);
 
-            var result = await service.AIResponse("prompt");
+            var result = await service.AiResponse("prompt");
 
             Assert.Equal("{ \"message\": \"ok\" }", result);
         }
 
         [Fact]
-        public async Task AIResponse_ReturnsErrorMessage_OnNonSuccess()
+        public async Task AiResponse_ReturnsErrorMessage_OnNonSuccess()
         {
             var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
@@ -47,24 +48,24 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
             var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
 
-            var service = new AIResponseService(client);
+            var service = new AiResponseService(client);
 
-            var result = await service.AIResponse("prompt");
+            var result = await service.AiResponse("prompt");
 
-            Assert.Equal("AI response error. 400 - bad request body", result);
+            Assert.Equal(string.Format(Messages.AiResponseError, (int)HttpStatusCode.BadRequest, "bad request body"), result);            
         }
 
         [Fact]
-        public async Task AIResponse_ReturnsExceptionMessage_OnException()
+        public async Task AiResponse_ReturnsExceptionMessage_OnException()
         {
             var handler = new FakeHttpMessageHandler((req, ct) => throw new InvalidOperationException("boom"));
             var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
 
-            var service = new AIResponseService(client);
+            var service = new AiResponseService(client);
 
-            var result = await service.AIResponse("prompt");
+            var result = await service.AiResponse("prompt");
 
-            Assert.StartsWith("AIResponse exception:", result);
+            Assert.StartsWith(string.Format(Messages.AiException, "boom"), result);
             Assert.Contains("boom", result);
         }
     }

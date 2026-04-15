@@ -25,14 +25,11 @@ namespace AICodeReview.Tests.ServicesUnitTests.GitUnitTests
                     Commands.Stage(repo, "A.cs");
                     repo.Commit("initial", sig, sig);
 
-                    // create main branch pointing to initial commit
                     repo.CreateBranch("main");
 
-                    // create feature branch from main and check it out
                     var feature = repo.CreateBranch("feature");
                     Commands.Checkout(repo, feature);
 
-                    // modify file and commit on feature
                     File.WriteAllText(filePath, "class A { int x; }\n");
                     Commands.Stage(repo, "A.cs");
                     repo.Commit("change", sig, sig);
@@ -69,7 +66,6 @@ namespace AICodeReview.Tests.ServicesUnitTests.GitUnitTests
                     Commands.Stage(repo, "A.cs");
                     repo.Commit("initial", sig, sig);
 
-                    // create only a main branch
                     repo.CreateBranch("main");
                 }
 

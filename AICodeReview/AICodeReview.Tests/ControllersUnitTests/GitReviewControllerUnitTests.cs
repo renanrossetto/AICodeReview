@@ -1,4 +1,5 @@
-﻿using AICodeReview.Controllers;
+﻿using AICodeReview.Common;
+using AICodeReview.Controllers;
 using AICodeReview.Interfaces;
 using AICodeReview.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +46,7 @@ namespace AICodeReview.Tests.ControllersUnitTests
             var prop = value.GetType().GetProperty("Message");
             var message = prop?.GetValue(value) as string;
 
-            Assert.Equal("Nenhuma alteração em arquivos .cs encontrada.", message);
+            Assert.Equal(Messages.NoCsFilesChanged, message);
         }
 
         [Fact]
@@ -59,7 +60,7 @@ namespace AICodeReview.Tests.ControllersUnitTests
                 .Returns(diff);
 
             _mockAi
-                .Setup(a => a.ReviewDiffAsync(It.IsAny<string>(), It.IsAny<List<string>>() ))
+                .Setup(a => a.GitCompareReview(It.IsAny<string>(), It.IsAny<List<string>>() ))
                 .ReturnsAsync("ai review result");
 
             var controller = new GitReviewController(_mockGit.Object, _mockStat.Object, _mockAi.Object);
@@ -87,7 +88,7 @@ namespace AICodeReview.Tests.ControllersUnitTests
             Assert.Equal(diff.Length, diffSize);
             Assert.Equal("ai review result", aiReview);
 
-            _mockAi.Verify(a => a.ReviewDiffAsync(It.Is<string>(s => s == diff), It.Is<List<string>>(l => l.Contains("Análise baseada em diff (Pull Request)"))), Times.Once);
+            _mockAi.Verify(a => a.GitCompareReview(It.Is<string>(s => s == diff), It.Is<List<string>>(l => l.Contains(Messages.PullRequestWarning))), Times.Once);
         }
     }
 }

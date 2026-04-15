@@ -6,97 +6,82 @@ using Moq;
 namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
 {
     public class AiReviewServiceUnitTests
-    {
+    {        
+        private const string GitComparePrompt = "AiReview:DiffReviewTemplate";
+        private const string GitCompareCheck = "WARNINGS:{WARNINGS};DIFF:{DIFF}";
+        private const string CodePrompt = "AiReview:CodeReviewTemplate";
+        private const string CodeCheck = "WARNINGS:{WARNINGS};CODE:{CODE}";
+        
         [Fact]
-        public async Task ReviewAsync_ReturnsEmptyString_WhenAiResponseIsNull()
+        public async Task ManualReview_ReturnsEmptyString_WhenAiResponseIsNull()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:CodeReviewTemplate", "WARNINGS:{WARNINGS};CODE:{CODE}" }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync((string?)null);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
 
             // Act
-            var result = await service.ReviewAsync("var x = 1;", new List<string> { "w1" });
+            var result = await service.ManualReview("var x = 1;", new List<string> { "w1" });
 
             // Assert
             Assert.Equal(string.Empty, result);
         }
 
         [Fact]
-        public async Task ReviewAsync_ReturnsEmptyString_WhenAiResponseIsWhitespace()
+        public async Task ManualReview_ReturnsEmptyString_WhenAiResponseIsWhitespace()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:CodeReviewTemplate", "WARNINGS:{WARNINGS};CODE:{CODE}" }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync("   ");
 
             var service = new AiReviewService(mockAiResponse.Object, config);
 
             // Act
-            var result = await service.ReviewAsync(null, null);
+            var result = await service.ManualReview(null, null);
 
             // Assert
             Assert.Equal(string.Empty, result);
         }
 
         [Fact]
-        public async Task ReviewAsync_ReturnsParsedResponse_WhenAiReturnsValidJson()
+        public async Task ManualReview_ReturnsParsedResponse_WhenAiReturnsValidJson()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:CodeReviewTemplate", "WARNINGS:{WARNINGS};CODE:{CODE}" }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, CodeCheck);
 
             var expected = "This is the review";
             var json = $"{{\"response\":\"{expected}\"}}";
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync(json);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
 
             // Act
-            var result = await service.ReviewAsync("int x = 0;", new List<string> { "Use var" });
+            var result = await service.ManualReview("int x = 0;", new List<string> { "Use var" });
 
             // Assert
             Assert.Equal(expected, result);
         }
 
         [Fact]
-        public async Task ReviewAsync_UsesTemplateAndPassesWarningsAndCodeToAi()
+        public async Task ManualReview_UsesTemplateAndPassesWarningsAndCodeToAi()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
             var template = "Warnings:[{WARNINGS}]|Code:[{CODE}]";
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:CodeReviewTemplate", template }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(CodePrompt, template);
 
             string? capturedPrompt = null;
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .Callback<string>(p => capturedPrompt = p)
                 .ReturnsAsync("{\"response\":\"ok\"}");
 
@@ -106,7 +91,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var code = "class C {}";
 
             // Act
-            var result = await service.ReviewAsync(code, warnings);
+            var result = await service.ManualReview(code, warnings);
 
             // Assert
             Assert.NotNull(capturedPrompt);
@@ -117,95 +102,75 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
         }
 
         [Fact]
-        public async Task ReviewDiffAsync_ReturnsEmptyString_WhenAiResponseIsNull()
+        public async Task GitCompareReview_ReturnsEmptyString_WhenAiResponseIsNull()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:DiffReviewTemplate", "WARNINGS:{WARNINGS};DIFF:{DIFF}" }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync((string?)null);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
 
             // Act
-            var result = await service.ReviewDiffAsync("diff content", new List<string> { "w1" });
+            var result = await service.GitCompareReview("diff content", new List<string> { "w1" });
 
             // Assert
             Assert.Equal(string.Empty, result);
         }
 
         [Fact]
-        public async Task ReviewDiffAsync_ReturnsEmptyString_WhenAiResponseIsWhitespace()
+        public async Task GitCompareReview_ReturnsEmptyString_WhenAiResponseIsWhitespace()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:DiffReviewTemplate", "WARNINGS:{WARNINGS};DIFF:{DIFF}" }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync("   ");
 
             var service = new AiReviewService(mockAiResponse.Object, config);
 
             // Act
-            var result = await service.ReviewDiffAsync(null, null);
+            var result = await service.GitCompareReview(null, null);
 
             // Assert
             Assert.Equal(string.Empty, result);
         }
 
         [Fact]
-        public async Task ReviewDiffAsync_ReturnsParsedResponse_WhenAiReturnsValidJson()
+        public async Task GitCompareReview_ReturnsParsedResponse_WhenAiReturnsValidJson()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:DiffReviewTemplate", "WARNINGS:{WARNINGS};DIFF:{DIFF}" }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, GitCompareCheck);
 
             var expected = "This is the diff review";
             var json = $"{{\"response\":\"{expected}\"}}";
 
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .ReturnsAsync(json);
 
             var service = new AiReviewService(mockAiResponse.Object, config);
 
             // Act
-            var result = await service.ReviewDiffAsync("- old\n+ new", new List<string> { "w1" });
+            var result = await service.GitCompareReview("- old\n+ new", new List<string> { "w1" });
 
             // Assert
             Assert.Equal(expected, result);
         }
 
         [Fact]
-        public async Task ReviewDiffAsync_UsesTemplateAndPassesWarningsAndDiffToAi()
+        public async Task GitCompareReview_UsesTemplateAndPassesWarningsAndDiffToAi()
         {
             // Arrange
-            var mockAiResponse = new Mock<IAIResponseService>();
             var template = "Warnings:[{WARNINGS}]|Diff:[{DIFF}]";
-            var inMemory = new Dictionary<string, string>
-            {
-                { "AiReview:DiffReviewTemplate", template }
-            };
-            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+            var (mockAiResponse, config) = AppSettingsSetup(GitComparePrompt, template);
 
             string? capturedPrompt = null;
             mockAiResponse
-                .Setup(a => a.AIResponse(It.IsAny<string>()))
+                .Setup(a => a.AiResponse(It.IsAny<string>()))
                 .Callback<string>(p => capturedPrompt = p)
                 .ReturnsAsync("{\"response\":\"ok\"}");
 
@@ -215,14 +180,28 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             var diff = "- a\n+ b";
 
             // Act
-            var result = await service.ReviewDiffAsync(diff, warnings);
+            var result = await service.GitCompareReview(diff, warnings);
 
             // Assert
-            Assert.NotNull(capturedPrompt);
+            Assert.NotNull(capturedPrompt);            
             var expectedWarnings = string.Join(Environment.NewLine, warnings);
             Assert.Contains(expectedWarnings, capturedPrompt!);
             Assert.Contains(diff, capturedPrompt!);
             Assert.Equal("ok", result);
+        }
+
+        private static (Mock<IAiResponseService> Mock, IConfiguration Config) AppSettingsSetup(string key, string template)
+        {
+            var mockAiResponse = new Mock<IAiResponseService>();
+
+            var inMemory = new Dictionary<string, string?>
+            {
+                { key, template }
+            };
+
+            var config = new ConfigurationBuilder().AddInMemoryCollection(inMemory).Build();
+
+            return (mockAiResponse, config);
         }
     }
 }

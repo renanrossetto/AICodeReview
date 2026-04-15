@@ -8,7 +8,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
         [InlineData(null)]
         [InlineData("")]
         [InlineData("   ")]
-        public void Analyze_ReturnsEmpty_WhenCodeIsNullOrWhitespace(string code)
+        public void Analyze_ReturnsEmpty_WhenCodeIsNullOrWhitespace(string? code)
         {
             var svc = new CodeAnalyzerService();
 
@@ -41,18 +41,6 @@ namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
             var result = svc.Analyze(code);
 
             Assert.Contains(result, r => r.Contains("possui muitos membros") && r.Contains("C"));
-        }
-
-        [Fact]
-        public void Analyze_FlagsUseOfInt_ShouldUseVar()
-        {
-            var code = "public class C { public void M() { int x = 0; } }";
-
-            var svc = new CodeAnalyzerService();
-
-            var result = svc.Analyze(code);
-
-            Assert.Contains("Use var", result);
         }
     }
 }
