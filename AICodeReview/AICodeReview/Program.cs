@@ -3,6 +3,8 @@ using AICodeReview.Services.AI;
 using AICodeReview.Services.AIConnection;
 using AICodeReview.Services.CodeAnalyser;
 using AICodeReview.Services.Git;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,30 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracer =>
+    {
+        tracer
+            .AddSource("AiReview")
+            .AddAspNetCoreInstrumentation(options =>
+            {
+                options.RecordException = true;
+            })
+            .AddHttpClientInstrumentation(options =>
+            {
+                options.RecordException = true;
+            })
+            .AddConsoleExporter();
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddConsoleExporter();
+    });
 
 object value = builder.Services.AddOpenApi();
 
