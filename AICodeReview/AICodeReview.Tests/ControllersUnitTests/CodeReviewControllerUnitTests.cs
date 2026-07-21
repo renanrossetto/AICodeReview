@@ -19,16 +19,16 @@ namespace AICodeReview.Tests.ControllersUnitTests
                 Code = "int x = 0;"
             };
 
-            var warningsEsperados = new List<string> { "Use var" };
-            var reviewEsperado = "Código simples, mas pode melhorar.";
+            var expectedWarnings = new List<string> { "Use var" };
+            var expectedReview = "Código simples, mas pode melhorar.";
 
             mockStatic
                 .Setup(s => s.Analyze(request.Code))
-                .Returns(warningsEsperados);
+                .Returns(expectedWarnings);
 
             mockAi
-                .Setup(a => a.ManualReview(request.Code, warningsEsperados))
-                .ReturnsAsync(reviewEsperado);
+                .Setup(a => a.ManualReview(request.Code, expectedWarnings))
+                .ReturnsAsync(expectedReview);
 
             var controller = new CodeReviewController(
                 mockStatic.Object,
@@ -39,8 +39,8 @@ namespace AICodeReview.Tests.ControllersUnitTests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(warningsEsperados, result.Warnings);
-            Assert.Equal(reviewEsperado, result.ReviewResult);
+            Assert.Equal(expectedWarnings, result.Warnings);
+            Assert.Equal(expectedReview, result.ReviewResult);
         }
 
         [Fact]
@@ -55,11 +55,11 @@ namespace AICodeReview.Tests.ControllersUnitTests
                 Code = "int x = 0;"
             };
 
-            var warningsEsperados = new List<string>();
+            var expectedWarnings = new List<string>();
 
             mockStatic
                 .Setup(s => s.Analyze(It.IsAny<string>()))
-                .Returns(warningsEsperados);
+                .Returns(expectedWarnings);
 
             mockAi
                 .Setup(a => a.ManualReview(It.IsAny<string>(), It.IsAny<List<string>>()))
