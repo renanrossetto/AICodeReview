@@ -41,7 +41,8 @@ builder.Services.AddOpenTelemetry()
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddRuntimeInstrumentation()
-            .AddConsoleExporter();
+            .AddConsoleExporter()        
+            .AddPrometheusExporter();
     });
 
 object value = builder.Services.AddOpenApi();
@@ -83,5 +84,7 @@ app.UseSwaggerUI(c =>
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapPrometheusScrapingEndpoint();
 
 app.Run();
