@@ -1,43 +1,88 @@
 ﻿using AICodeReview.Interfaces;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace AICodeReview.Services.AI
 {
     public class AiReviewService : IAiReviewService
     {
+        private const string AppSettingsSection = "AiReview";
         private readonly IAiResponseService _aiResponseService;
+        private readonly IPromptBuilder _promptBuilder;
+        private readonly IReviewTelemetry _reviewTelemetry;
         private readonly string _codeReviewTemplate;
         private readonly string _pullRequestReview;
 
-        public AiReviewService(IAiResponseService aIResponseService,IConfiguration config)
-        {     
+        private static readonly ActivitySource ActivitySource = new(AppSettingsSection);
+
+        public AiReviewService(
+            IAiResponseService aIResponseService,
+            IConfiguration config,
+            IPromptBuilder? promptBuilder = null,
+            IReviewTelemetry? reviewTelemetry = null)
+        {
             _aiResponseService = aIResponseService;
-            _codeReviewTemplate = config.GetSection("AiReview").GetValue<string>("CodeReviewTemplate") ?? string.Empty;
-            _pullRequestReview = config.GetSection("AiReview").GetValue<string>("DiffReviewTemplate") ?? string.Empty;
+            _codeReviewTemplate = config.GetSection(AppSettingsSection).GetValue<string>("CodeReviewTemplate") ?? string.Empty;
+            _pullRequestReview = config.GetSection(AppSettingsSection).GetValue<string>("DiffReviewTemplate") ?? string.Empty;
+
+            _promptBuilder = promptBuilder ?? new PromptBuilder();
+            _reviewTelemetry = reviewTelemetry ?? new Telemetry.ReviewTelemetry();
         }
 
-        public async Task<string> ManualReview(string? code, List<string>? warnings)
+        public Task<string> ManualReview(string? code, List<string>? warnings)
         {
-            var warningsText = string.Join(Environment.NewLine, warnings ?? []);
-            var safeCode = code ?? string.Empty;
-
-            var prompt = _codeReviewTemplate
-                .Replace("{WARNINGS}", warningsText)
-                .Replace("{CODE}", safeCode);
-
-            return await ExecutePrompt(prompt);
+            return RunReview(
+                activityName: "Manual Review",
+                reviewType: "manual",
+                template: _codeReviewTemplate,
+                input: code ?? string.Empty,
+                warnings: warnings,
+                inputPlaceholder: "{CODE}");
         }
 
-        public async Task<string> GitCompareReview(string? diff, List<string>? warnings)
+        public Task<string> GitCompareReview(string? diff, List<string>? warnings)
         {
-            var warningsText = string.Join(Environment.NewLine, warnings ?? []);
-            var safeDiff = diff ?? string.Empty;
+            return RunReview(
+                activityName: "PR Review",
+                reviewType: "diff",
+                template: _pullRequestReview,
+                input: diff ?? string.Empty,
+                warnings: warnings,
+                inputPlaceholder: "{DIFF}");
+        }
 
-            var prompt = _pullRequestReview
-                .Replace("{WARNINGS}", warningsText)
-                .Replace("{DIFF}", safeDiff);
+        private async Task<string> RunReview(string activityName, string reviewType, string template, string input, List<string>? warnings, string inputPlaceholder)
+        {
+            using var activity = ActivitySource.StartActivity(activityName);
 
-            return await ExecutePrompt(prompt);
+            var stopwatch = Stopwatch.StartNew();
+
+            var safeInput = input ?? string.Empty;
+            var warningsCount = warnings?.Count ?? 0;
+
+            _reviewTelemetry.RecordStartTags(activity, reviewType, safeInput.Length, warningsCount);
+            _reviewTelemetry.IncrementReviewCounter(reviewType);
+
+            var prompt = _promptBuilder.Build(template, inputPlaceholder, safeInput, warnings);
+
+            try
+            {
+                var result = await ExecutePrompt(prompt).ConfigureAwait(false);
+
+                stopwatch.Stop();
+
+                _reviewTelemetry.RecordSuccess(stopwatch.Elapsed.TotalMilliseconds, safeInput.Length, reviewType, activity, result);
+
+                return result;
+            }
+            catch
+            {
+                stopwatch.Stop();
+
+                _reviewTelemetry.RecordFailure(reviewType, activity);
+
+                throw;
+            }
         }
 
         private async Task<string> ExecutePrompt(string prompt)
