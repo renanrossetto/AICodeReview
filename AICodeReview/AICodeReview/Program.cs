@@ -3,12 +3,21 @@ using AICodeReview.Services.AI;
 using AICodeReview.Services.AIConnection;
 using AICodeReview.Services.CodeAnalyser;
 using AICodeReview.Services.Git;
+using AICodeReview.Telemetry;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#region Controllers
+
 builder.Services.AddControllers();
+
+#endregion
+
+#region CORS
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularPolicy", policy =>
@@ -20,49 +29,87 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddOpenTelemetry()
-    .WithTracing(tracer =>
+#endregion
+
+#region OpenTelemetry
+
+builder.Services
+    .AddOpenTelemetry()
+    .ConfigureResource(resource =>
     {
-        tracer
-            .AddSource("AiReview")
+        resource.AddService(ActivitySources.SourceName);
+    })
+    .WithTracing(tracing =>
+    {
+        tracing
+
+            .AddSource(ActivitySources.SourceName)
+
             .AddAspNetCoreInstrumentation(options =>
             {
                 options.RecordException = true;
             })
+
             .AddHttpClientInstrumentation(options =>
             {
                 options.RecordException = true;
             })
+
             .AddConsoleExporter();
     })
     .WithMetrics(metrics =>
     {
         metrics
+
+            .AddMeter(AiReviewTelemetry.Meter.Name)
+
             .AddAspNetCoreInstrumentation()
+
             .AddHttpClientInstrumentation()
+
             .AddRuntimeInstrumentation()
-            .AddConsoleExporter()        
+
+            .AddConsoleExporter()
+
             .AddPrometheusExporter();
     });
 
-object value = builder.Services.AddOpenApi();
+#endregion
 
+#region Swagger
+
+builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+#endregion
+
+#region Dependency Injection
+
 builder.Services.AddScoped<ICodeAnalyzerService, CodeAnalyzerService>();
 builder.Services.AddScoped<IAiReviewService, AiReviewService>();
 builder.Services.AddScoped<IGitService, GitService>();
 
-var aiBaseUrl = builder.Configuration["AiReview:BaseUrl"] ?? "http://localhost:11434";
+#endregion
+
+#region HttpClient
+
+builder.Configuration.AddJsonFile("appsettings.json");
+
+var aiBaseUrl =
+    builder.Configuration["AiReview:BaseUrl"]
+    ?? "http://localhost:11434";
 
 builder.Services.AddHttpClient<IAiResponseService, AiResponseService>(client =>
 {
     client.BaseAddress = new Uri(aiBaseUrl);
 });
 
-builder.Configuration.AddJsonFile("appsettings.json");
+#endregion
 
 var app = builder.Build();
+
+#region Middleware
 
 if (app.Environment.IsDevelopment())
 {
@@ -71,7 +118,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AngularPolicy");
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseSwagger();
 
@@ -83,8 +133,14 @@ app.UseSwaggerUI(c =>
 
 app.UseAuthorization();
 
+#endregion
+
+#region Endpoints
+
 app.MapControllers();
 
 app.MapPrometheusScrapingEndpoint();
+
+#endregion
 
 app.Run();

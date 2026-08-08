@@ -8,16 +8,25 @@ namespace AICodeReview.Services.AI
     {
         private const string AppSettingsSection = "AiReview";
         private readonly IAiResponseService _aiResponseService;
+        private readonly IPromptBuilder _promptBuilder;
+        private readonly IReviewTelemetry _reviewTelemetry;
         private readonly string _codeReviewTemplate;
         private readonly string _pullRequestReview;
-        
+
         private static readonly ActivitySource ActivitySource = new(AppSettingsSection);
 
-        public AiReviewService(IAiResponseService aIResponseService, IConfiguration config)
-        {     
+        public AiReviewService(
+            IAiResponseService aIResponseService,
+            IConfiguration config,
+            IPromptBuilder? promptBuilder = null,
+            IReviewTelemetry? reviewTelemetry = null)
+        {
             _aiResponseService = aIResponseService;
             _codeReviewTemplate = config.GetSection(AppSettingsSection).GetValue<string>("CodeReviewTemplate") ?? string.Empty;
             _pullRequestReview = config.GetSection(AppSettingsSection).GetValue<string>("DiffReviewTemplate") ?? string.Empty;
+
+            _promptBuilder = promptBuilder ?? new PromptBuilder();
+            _reviewTelemetry = reviewTelemetry ?? new Telemetry.ReviewTelemetry();
         }
 
         public Task<string> ManualReview(string? code, List<string>? warnings)
@@ -46,22 +55,34 @@ namespace AICodeReview.Services.AI
         {
             using var activity = ActivitySource.StartActivity(activityName);
 
-            var warningsText = string.Join(Environment.NewLine, warnings ?? []);
+            var stopwatch = Stopwatch.StartNew();
+
             var safeInput = input ?? string.Empty;
+            var warningsCount = warnings?.Count ?? 0;
 
-            activity?.SetTag("review.type", reviewType);
-            activity?.SetTag("input.size", safeInput.Length);
-            activity?.SetTag("warnings.count", warnings?.Count ?? 0);
+            _reviewTelemetry.RecordStartTags(activity, reviewType, safeInput.Length, warningsCount);
+            _reviewTelemetry.IncrementReviewCounter(reviewType);
 
-            var prompt = template
-                .Replace("{WARNINGS}", warningsText)
-                .Replace(inputPlaceholder, safeInput);
+            var prompt = _promptBuilder.Build(template, inputPlaceholder, safeInput, warnings);
 
-            var result = await ExecutePrompt(prompt);
+            try
+            {
+                var result = await ExecutePrompt(prompt).ConfigureAwait(false);
 
-            activity?.SetTag("ai.success", !string.IsNullOrEmpty(result));
+                stopwatch.Stop();
 
-            return result;
+                _reviewTelemetry.RecordSuccess(stopwatch.Elapsed.TotalMilliseconds, safeInput.Length, reviewType, activity, result);
+
+                return result;
+            }
+            catch
+            {
+                stopwatch.Stop();
+
+                _reviewTelemetry.RecordFailure(reviewType, activity);
+
+                throw;
+            }
         }
 
         private async Task<string> ExecutePrompt(string prompt)
