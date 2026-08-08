@@ -1,9 +1,9 @@
 ﻿using AICodeReview.Interfaces;
-using AICodeReview.Services.AI;
+using AICodeReview.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
-namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
+namespace AICodeReview.Tests.ServicesUnitTests
 {
     public class AiReviewServiceUnitTests
     {        
@@ -190,9 +190,9 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
             Assert.Equal("ok", result);
         }
 
-        private static (Mock<IAiResponseService> Mock, IConfiguration Config) AppSettingsSetup(string key, string template)
+        private static (Mock<IAiCommunicationService> Mock, IConfiguration Config) AppSettingsSetup(string key, string template)
         {
-            var mockAiResponse = new Mock<IAiResponseService>();
+            var mockAiResponse = new Mock<IAiCommunicationService>();
 
             var inMemory = new Dictionary<string, string?>
             {

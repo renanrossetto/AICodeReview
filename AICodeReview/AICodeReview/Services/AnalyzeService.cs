@@ -3,9 +3,9 @@ using AICodeReview.Interfaces;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace AICodeReview.Services.CodeAnalyser
+namespace AICodeReview.Services
 {
-    public class CodeAnalyzerService : ICodeAnalyzerService
+    public class AnalyzeService : IAnalyzeService
     {
         public List<string> Analyze(string? code)
         {

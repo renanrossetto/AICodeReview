@@ -3,13 +3,13 @@ using AICodeReview.Interfaces;
 using System.Text;
 using System.Text.Json;
 
-namespace AICodeReview.Services.AIConnection
+namespace AICodeReview.Services
 {
-    public class AiResponseService : IAiResponseService
+    public class AiCommunicationService : IAiCommunicationService
     {
         private readonly HttpClient _http;
 
-        public AiResponseService(HttpClient http)
+        public AiCommunicationService(HttpClient http)
         {
             _http = http;
         }

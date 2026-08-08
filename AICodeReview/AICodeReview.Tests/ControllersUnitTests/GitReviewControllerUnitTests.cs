@@ -11,13 +11,13 @@ namespace AICodeReview.Tests.ControllersUnitTests
     {
         private readonly Mock<IGitService> _mockGit;
         private readonly Mock<IAiReviewService> _mockAi;
-        private readonly Mock<ICodeAnalyzerService> _mockStat;
+        private readonly Mock<IAnalyzeService> _mockStat;
 
         public GitReviewControllerUnitTests()
         {
             _mockGit = new Mock<IGitService>();
             _mockAi = new Mock<IAiReviewService>();
-            _mockStat = new Mock<ICodeAnalyzerService>();
+            _mockStat = new Mock<IAnalyzeService>();
         }
         
         [Fact]

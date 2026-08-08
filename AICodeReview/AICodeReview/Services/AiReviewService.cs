@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace AICodeReview.Services.AI
+namespace AICodeReview.Services
 {
     public class AiReviewService : IAiReviewService
     {
         private const string AppSettingsSection = "AiReview";
-        private readonly IAiResponseService _aiResponseService;
+        private readonly IAiCommunicationService _aiCommunicationService;
         private readonly IPromptBuilder _promptBuilder;
         private readonly IReviewTelemetry _reviewTelemetry;
         private readonly string _codeReviewTemplate;
@@ -16,12 +16,12 @@ namespace AICodeReview.Services.AI
         private static readonly ActivitySource ActivitySource = new(AppSettingsSection);
 
         public AiReviewService(
-            IAiResponseService aIResponseService,
+            IAiCommunicationService aiCommunicationService,
             IConfiguration config,
             IPromptBuilder? promptBuilder = null,
             IReviewTelemetry? reviewTelemetry = null)
         {
-            _aiResponseService = aIResponseService;
+            _aiCommunicationService = aiCommunicationService;
             _codeReviewTemplate = config.GetSection(AppSettingsSection).GetValue<string>("CodeReviewTemplate") ?? string.Empty;
             _pullRequestReview = config.GetSection(AppSettingsSection).GetValue<string>("DiffReviewTemplate") ?? string.Empty;
 
@@ -87,7 +87,7 @@ namespace AICodeReview.Services.AI
 
         private async Task<string> ExecutePrompt(string prompt)
         {
-            var json = await _aiResponseService.AiResponse(prompt);
+            var json = await _aiCommunicationService.AiResponse(prompt);
 
             if (string.IsNullOrWhiteSpace(json)) return "";
 
