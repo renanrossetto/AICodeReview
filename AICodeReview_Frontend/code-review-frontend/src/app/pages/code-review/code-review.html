@@ -1,30 +1,85 @@
-<div class="container">
-  <div class="card">
-
-    <h1 class="title">Código a ser revisado</h1>
-
-    <textarea
-      [(ngModel)]="codeInput"
-      rows="12"
-      class="code-input">
-    </textarea>
-
-    <button class="review-btn" (click)="sendCode()">
-      Revisar Código
-    </button>
-
-    <div *ngIf="loading" class="loading">
-      Analisando código...
+<div class="page-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">&lt;/&gt;</div>
+      <div>
+        <div class="brand-name">AI Code Review</div>
+        <div class="brand-subtitle">Revisão inteligente de código com IA</div>
+      </div>
     </div>
 
-  </div>
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      API disponível
+    </div>
+  </header>
 
-  <div class="card result" *ngIf="reviewedCode">
+  <main class="content">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">CODE ANALYSIS</span>
+        <h1>Revise seu código com inteligência artificial.</h1>
+        <p>
+          Envie um trecho de código ou compare branches de um repositório Git
+          e receba uma análise com sugestões de qualidade, possíveis problemas
+          e melhorias.
+        </p>
+      </div>
+    </section>
 
-    <h2 class="result-title">Resultado da Revisão</h2>
+    <section class="mode-switch" aria-label="Tipo de revisão">
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="activeMode === 'manual'"
+        (click)="activeMode = 'manual'"
+      >
+        <span class="mode-icon">⌘</span>
+        <span>
+          <strong>Revisão manual</strong>
+          <small>Cole seu código para analisar</small>
+        </span>
+      </button>
 
-    <pre class="code-output"> {{ reviewedCode }} </pre>
+      <button
+        type="button"
+        class="mode-button"
+        [class.active]="activeMode === 'pull-request'"
+        (click)="activeMode = 'pull-request'"
+      >
+        <span class="mode-icon">⇄</span>
+        <span>
+          <strong>Git Compare</strong>
+          <small>Compare alterações entre branches</small>
+        </span>
+      </button>
+    </section>
 
-  </div>
+    <app-manual-review *ngIf="activeMode === 'manual'"></app-manual-review>
 
+    <app-git-compare *ngIf="activeMode === 'pull-request'"></app-git-compare>
+
+    <div class="info-strip">
+      <div class="info-item">
+        <span class="info-icon">AI</span>
+        <div>
+          <strong>Análise assistida por IA</strong>
+          <span>Seu código é enviado ao modelo configurado no Ollama.</span>
+        </div>
+      </div>
+
+      <div class="info-item">
+        <span class="info-icon">↯</span>
+        <div>
+          <strong>Feedback rápido</strong>
+          <span>Receba sugestões diretamente na interface.</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>AI Code Review</span>
+    <span>Projeto de revisão de código assistida por IA</span>
+  </footer>
 </div>

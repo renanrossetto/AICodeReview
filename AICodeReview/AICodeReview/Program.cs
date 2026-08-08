@@ -39,7 +39,6 @@ builder.Services
     .WithTracing(tracing =>
     {
         tracing
-
             .AddSource(ActivitySources.SourceName)
 
             .AddAspNetCoreInstrumentation(options =>
@@ -57,17 +56,11 @@ builder.Services
     .WithMetrics(metrics =>
     {
         metrics
-
             .AddMeter(AiReviewTelemetry.Meter.Name)
-
             .AddAspNetCoreInstrumentation()
-
             .AddHttpClientInstrumentation()
-
             .AddRuntimeInstrumentation()
-
             .AddConsoleExporter()
-
             .AddPrometheusExporter();
     });
 
