@@ -1,6 +1,6 @@
 using AICodeReview.Interfaces;
 
-namespace AICodeReview.Services.AI
+namespace AICodeReview.Services
 {
     public class PromptBuilder : IPromptBuilder
     {

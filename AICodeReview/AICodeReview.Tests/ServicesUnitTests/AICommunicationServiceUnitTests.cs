@@ -1,10 +1,10 @@
 ﻿using AICodeReview.Common;
-using AICodeReview.Services.AIConnection;
+using AICodeReview.Services;
 using System.Net;
 
-namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
+namespace AICodeReview.Tests.ServicesUnitTests
 {
-    public class AIResponseServiceUnitTests
+    public class AICommunicationServiceUnitTests
     {
         private class FakeHttpMessageHandler : HttpMessageHandler
         {
@@ -30,7 +30,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
             var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
 
-            var service = new AiResponseService(client);
+            var service = new AiCommunicationService(client);
 
             var result = await service.AiResponse("prompt");
 
@@ -48,7 +48,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
             var handler = new FakeHttpMessageHandler((req, ct) => Task.FromResult(response));
             var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
 
-            var service = new AiResponseService(client);
+            var service = new AiCommunicationService(client);
 
             var result = await service.AiResponse("prompt");
 
@@ -61,7 +61,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.AIConnectionUnitTests
             var handler = new FakeHttpMessageHandler((req, ct) => throw new InvalidOperationException("boom"));
             var client = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
 
-            var service = new AiResponseService(client);
+            var service = new AiCommunicationService(client);
 
             var result = await service.AiResponse("prompt");
 

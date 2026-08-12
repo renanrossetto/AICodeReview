@@ -1,7 +1,6 @@
-using AICodeReview.Services.AI;
-using Xunit;
+using AICodeReview.Services;
 
-namespace AICodeReview.Tests.ServicesUnitTests.AIUnitTests
+namespace AICodeReview.Tests.ServicesUnitTests
 {
     public class PromptBuilderTests
     {

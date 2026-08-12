@@ -1,0 +1,123 @@
+<section class="workspace">
+  <div class="panel code-panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-kicker">ENTRADA</span>
+        <h2>Git Compare</h2>
+      </div>
+      <span class="language-badge">GIT</span>
+    </div>
+
+    <div class="git-form">
+      <div class="form-field">
+        <label for="repositoryPath">Caminho do repositório</label>
+        <input
+          id="repositoryPath"
+          type="text"
+          [(ngModel)]="repositoryPath"
+          placeholder="Ex.: E:/Projetos_PR_Code_review/aspnetcore-realworld-example-app"
+          autocomplete="off"
+        />
+        <small>Informe o caminho local do repositório Git.</small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="baseBranch">Branch base</label>
+          <input
+            id="baseBranch"
+            type="text"
+            [(ngModel)]="baseBranch"
+            placeholder="master"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="compareBranch">Branch para comparar</label>
+          <input
+            id="compareBranch"
+            type="text"
+            [(ngModel)]="compareBranch"
+            placeholder="local_test"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-footer">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="clearGitReview()"
+        [disabled]="loading"
+      >
+        Limpar
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="sendGitReview()"
+        [disabled]="!canGitReview"
+      >
+        <span *ngIf="!loading" class="sparkle">✦</span>
+        <span *ngIf="loading" class="spinner"></span>
+        {{ loading ? 'Analisando...' : 'Analisar alterações' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="panel result-panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-kicker">SAÍDA</span>
+        <h2>Resultado da análise</h2>
+      </div>
+
+      <button
+        *ngIf="reviewedCode"
+        type="button"
+        class="copy-button"
+        (click)="copyResult()"
+        [attr.aria-label]="copied ? 'Resultado copiado' : 'Copiar resultado'"
+      >
+        <span>{{ copied ? '✓ Copiado' : 'Copiar' }}</span>
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="result-empty loading-state">
+      <div class="loading-orb"><span class="spinner large"></span></div>
+      <h3>Analisando alterações</h3>
+      <p>
+        A IA está avaliando as alterações entre
+        {{ baseBranch }} e {{ compareBranch }}.
+      </p>
+    </div>
+
+    <div *ngIf="!loading && errorMessage" class="result-empty error-state">
+      <div class="empty-icon error-icon">!</div>
+      <h3>Não foi possível concluir a análise</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && !reviewedCode" class="result-empty">
+      <div class="empty-icon">⇄</div>
+      <h3>Seu resultado aparecerá aqui</h3>
+      <p>Informe o repositório e as branches para iniciar a revisão.</p>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && reviewedCode" class="result-content">
+      <div class="result-status">
+        <span class="success-dot"></span>
+        Análise concluída
+        <span *ngIf="diffSize > 0" class="diff-size">
+          {{ diffSize }} caracteres analisados
+        </span>
+      </div>
+
+      <pre class="code-output">{{ reviewedCode }}</pre>
+    </div>
+  </div>
+</section>

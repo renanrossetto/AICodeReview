@@ -1,4 +1,4 @@
 export interface CodeReviewResponse {
-  warnings: any[];
+  warnings: string[];
   reviewResult: string;
 }

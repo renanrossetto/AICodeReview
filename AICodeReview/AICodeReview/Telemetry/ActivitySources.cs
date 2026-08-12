@@ -6,7 +6,6 @@ namespace AICodeReview.Telemetry
     {
         public const string SourceName = "AICodeReview";
 
-        public static readonly ActivitySource AiReview =
-            new(SourceName);
+        public static readonly ActivitySource AiReview = new(SourceName);
     }
 }

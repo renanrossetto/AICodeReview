@@ -2,7 +2,7 @@
 using AICodeReview.Interfaces;
 using LibGit2Sharp;
 
-namespace AICodeReview.Services.Git
+namespace AICodeReview.Services
 {
     public class GitService : IGitService
     {

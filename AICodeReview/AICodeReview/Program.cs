@@ -1,8 +1,5 @@
 using AICodeReview.Interfaces;
-using AICodeReview.Services.AI;
-using AICodeReview.Services.AIConnection;
-using AICodeReview.Services.CodeAnalyser;
-using AICodeReview.Services.Git;
+using AICodeReview.Services;
 using AICodeReview.Telemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -42,7 +39,6 @@ builder.Services
     .WithTracing(tracing =>
     {
         tracing
-
             .AddSource(ActivitySources.SourceName)
 
             .AddAspNetCoreInstrumentation(options =>
@@ -60,17 +56,11 @@ builder.Services
     .WithMetrics(metrics =>
     {
         metrics
-
             .AddMeter(AiReviewTelemetry.Meter.Name)
-
             .AddAspNetCoreInstrumentation()
-
             .AddHttpClientInstrumentation()
-
             .AddRuntimeInstrumentation()
-
             .AddConsoleExporter()
-
             .AddPrometheusExporter();
     });
 
@@ -86,7 +76,7 @@ builder.Services.AddSwaggerGen();
 
 #region Dependency Injection
 
-builder.Services.AddScoped<ICodeAnalyzerService, CodeAnalyzerService>();
+builder.Services.AddScoped<IAnalyzeService, AnalyzeService>();
 builder.Services.AddScoped<IAiReviewService, AiReviewService>();
 builder.Services.AddScoped<IGitService, GitService>();
 
@@ -100,7 +90,7 @@ var aiBaseUrl =
     builder.Configuration["AiReview:BaseUrl"]
     ?? "http://localhost:11434";
 
-builder.Services.AddHttpClient<IAiResponseService, AiResponseService>(client =>
+builder.Services.AddHttpClient<IAiCommunicationService, AiCommunicationService>(client =>
 {
     client.BaseAddress = new Uri(aiBaseUrl);
 });

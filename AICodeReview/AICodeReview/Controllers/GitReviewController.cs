@@ -12,7 +12,7 @@ namespace AICodeReview.Controllers
         private readonly IGitService _git;
         private readonly IAiReviewService _ai;
 
-        public GitReviewController(IGitService git, ICodeAnalyzerService stat, IAiReviewService ai)
+        public GitReviewController(IGitService git, IAnalyzeService stat, IAiReviewService ai)
         {
             _git = git;
             _ai = ai;

@@ -1,6 +1,6 @@
-﻿using AICodeReview.Services.CodeAnalyser;
+﻿using AICodeReview.Services;
 
-namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
+namespace AICodeReview.Tests.ServicesUnitTests
 {
     public class CodeAnalyzerServiceUnitTests
     {
@@ -10,7 +10,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
         [InlineData("   ")]
         public void Analyze_ReturnsEmpty_WhenCodeIsNullOrWhitespace(string? code)
         {
-            var svc = new CodeAnalyzerService();
+            var svc = new AnalyzeService();
 
             var result = svc.Analyze(code);
 
@@ -23,7 +23,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
             var methodBody = string.Join('\n', Enumerable.Repeat("    var x = 0;", 41));
             var code = $"public class C {{ public void M()\n{{\n{methodBody}\n}} }}";
 
-            var svc = new CodeAnalyzerService();
+            var svc = new AnalyzeService();
 
             var result = svc.Analyze(code);
 
@@ -36,7 +36,7 @@ namespace AICodeReview.Tests.ServicesUnitTests.CodeAnalyzerUnitTests
             var members = string.Join('\n', Enumerable.Range(0, 16).Select(i => $"public void M{i}() {{ }}"));
             var code = $"public class C {{ {members} }}";
 
-            var svc = new CodeAnalyzerService();
+            var svc = new AnalyzeService();
 
             var result = svc.Analyze(code);
 

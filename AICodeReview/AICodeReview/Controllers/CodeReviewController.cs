@@ -8,10 +8,10 @@ namespace AICodeReview.Controllers
     [ApiController]
     public class CodeReviewController : ControllerBase
     {
-        private readonly ICodeAnalyzerService _static;
+        private readonly IAnalyzeService _static;
         private readonly IAiReviewService _ai;
 
-        public CodeReviewController(ICodeAnalyzerService stat, IAiReviewService ai)
+        public CodeReviewController(IAnalyzeService stat, IAiReviewService ai)
         {
             _static = stat;
             _ai = ai;

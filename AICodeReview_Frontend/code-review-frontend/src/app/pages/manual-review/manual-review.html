@@ -1,0 +1,97 @@
+<section class="workspace">
+  <div class="panel code-panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-kicker">ENTRADA</span>
+        <h2>Código fonte</h2>
+      </div>
+      <span class="language-badge">C#</span>
+    </div>
+
+    <div class="editor">
+      <div class="editor-toolbar">
+        <div class="traffic-lights" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <span>source.cs</span>
+        <span class="editor-count">{{ characterCount }} caracteres</span>
+      </div>
+
+      <textarea
+        [(ngModel)]="codeInput"
+        class="code-input"
+        spellcheck="false"
+        autocomplete="off"
+        placeholder="Cole aqui o código que deseja revisar..."
+        aria-label="Código para revisão"
+      ></textarea>
+    </div>
+
+    <div class="panel-footer">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="clearCode()"
+        [disabled]="!codeInput || loading"
+      >
+        Limpar
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="sendCode()"
+        [disabled]="!canReview"
+      >
+        <span *ngIf="!loading" class="sparkle">✦</span>
+        <span *ngIf="loading" class="spinner"></span>
+        {{ loading ? 'Analisando...' : 'Analisar código' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="panel result-panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-kicker">SAÍDA</span>
+        <h2>Resultado da análise</h2>
+      </div>
+
+      <button
+        *ngIf="reviewedCode"
+        type="button"
+        class="copy-button"
+        (click)="copyResult()"
+        [attr.aria-label]="copied ? 'Resultado copiado' : 'Copiar resultado'"
+      >
+        <span>{{ copied ? '✓ Copiado' : 'Copiar' }}</span>
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="result-empty loading-state">
+      <div class="loading-orb"><span class="spinner large"></span></div>
+      <h3>Analisando seu código</h3>
+      <p>A IA está avaliando o conteúdo. Isso pode levar alguns segundos.</p>
+    </div>
+
+    <div *ngIf="!loading && errorMessage" class="result-empty error-state">
+      <div class="empty-icon error-icon">!</div>
+      <h3>Não foi possível concluir a análise</h3>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && !reviewedCode" class="result-empty">
+      <div class="empty-icon">✦</div>
+      <h3>Seu resultado aparecerá aqui</h3>
+      <p>Envie um código para iniciar a revisão com IA.</p>
+    </div>
+
+    <div *ngIf="!loading && !errorMessage && reviewedCode" class="result-content">
+      <div class="result-status">
+        <span class="success-dot"></span>
+        Análise concluída
+      </div>
+      <pre class="code-output">{{ reviewedCode }}</pre>
+    </div>
+  </div>
+</section>

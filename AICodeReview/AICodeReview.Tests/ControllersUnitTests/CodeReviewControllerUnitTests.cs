@@ -11,7 +11,7 @@ namespace AICodeReview.Tests.ControllersUnitTests
         public async Task Review_ShouldReturnWarningsAndReviewResult_WhenSuccess()
         {
             // Arrange
-            var mockStatic = new Mock<ICodeAnalyzerService>();
+            var mockStatic = new Mock<IAnalyzeService>();
             var mockAi = new Mock<IAiReviewService>();
 
             var request = new ReviewRequest
@@ -47,7 +47,7 @@ namespace AICodeReview.Tests.ControllersUnitTests
         public async Task Review_ShouldThrowException_WhenAIFail()
         {
             // Arrange
-            var mockStatic = new Mock<ICodeAnalyzerService>();
+            var mockStatic = new Mock<IAnalyzeService>();
             var mockAi = new Mock<IAiReviewService>();
 
             var request = new ReviewRequest
